@@ -42,7 +42,7 @@ public class MedicoEntity {
     private String tarjetaProfesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "especialidad_id", nullable = false, unique = true)
+    @JoinColumn(name = "especialidad_id", nullable = false) //Aquí había puesto que sea único, lo quité por si acaso
     private EspecialidadEntity especialidad;
 
     @Column(name = "genero", nullable = false)
