@@ -33,7 +33,6 @@ public class PacienteMapper {
         paciente.setFechaNacimiento(dto.getFechaNacimiento());
         paciente.setTelefono(dto.getTelefono());
         paciente.setRegimen(dto.getRegimen());
-        paciente.setEps(dto.getEps());
 
         return paciente;
     }

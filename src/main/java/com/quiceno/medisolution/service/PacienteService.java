@@ -1,8 +1,10 @@
 package com.quiceno.medisolution.service;
 
 import com.quiceno.medisolution.dto.PacienteDTO;
+import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
 import com.quiceno.medisolution.mapper.PacienteMapper;
+import com.quiceno.medisolution.repository.EpsRepository;
 import com.quiceno.medisolution.repository.PacienteRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,11 @@ public class PacienteService {
 
     //Esta es una inyección de dependencias
     private final PacienteRepository pacienteRepository;
+    private final EpsRepository epsRepository;
 
-    public PacienteService(PacienteRepository pacienteRepository) {
+    public PacienteService(PacienteRepository pacienteRepository, EpsRepository epsRepository) {
         this.pacienteRepository = pacienteRepository;
+        this.epsRepository = epsRepository;
     }
 
     public List<PacienteDTO> listar() {
@@ -24,10 +28,26 @@ public class PacienteService {
                 .collect(Collectors.toList());
     }
 
-    public PacienteDTO buscaId(String numeroDocumento) {
+    public PacienteDTO buscarPorNumeroDocumento(String numeroDocumento) {
         PacienteEntity paciente = pacienteRepository.findByNumeroDocumento(numeroDocumento)
                 .orElseThrow(() -> new RuntimeException("Paciente con número de documento: " + numeroDocumento + "no encontrado"));
         return PacienteMapper.toDTO(paciente);
+    }
+
+    public PacienteDTO guardarPaciente(PacienteDTO dto) {
+
+        //Aquí se verifica si la eps enviada por el frontend existe
+        EpsEntity epsEncontrada = epsRepository.findById(dto.getEpsId())
+                .orElseThrow(() -> new RuntimeException("Error: La eps con id " + dto.getEpsId() + "no existe."));
+
+        //Mapeo de paciente
+        PacienteEntity paciente = PacienteMapper.toEntity(dto);
+
+        //Insertar la eps encontrada al entity y luego guardar en la bd
+        paciente.setEps(epsEncontrada);
+        PacienteEntity pacienteGuardado = pacienteRepository.save(paciente);
+
+        return PacienteMapper.toDTO(pacienteGuardado);
     }
 
 }
