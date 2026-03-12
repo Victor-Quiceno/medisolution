@@ -3,12 +3,15 @@ package com.quiceno.medisolution.service;
 import com.quiceno.medisolution.dto.PacienteDTO;
 import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
+import com.quiceno.medisolution.exception.DuplicateResourceException;
+import com.quiceno.medisolution.exception.ResourceNotFoundException;
 import com.quiceno.medisolution.mapper.PacienteMapper;
 import com.quiceno.medisolution.repository.EpsRepository;
 import com.quiceno.medisolution.repository.PacienteRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,15 +33,21 @@ public class PacienteService {
 
     public PacienteDTO buscarPorNumeroDocumento(String numeroDocumento) {
         PacienteEntity paciente = pacienteRepository.findByNumeroDocumento(numeroDocumento)
-                .orElseThrow(() -> new RuntimeException("Paciente con número de documento: " + numeroDocumento + "no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("El paciente con número de documento: " + numeroDocumento +
+                        ", no ha sido encontrado."));
+
         return PacienteMapper.toDTO(paciente);
     }
 
     public PacienteDTO guardarPaciente(PacienteDTO dto) {
 
+        if (pacienteRepository.existsByEmail(dto.getEmail())) {
+            throw new DuplicateResourceException("El email " + dto.getEmail() + ", ya está siendo utilizado por otro paciente.");
+        }
+
         //Aquí se verifica si la eps enviada por el frontend existe
         EpsEntity epsEncontrada = epsRepository.findById(dto.getEpsId())
-                .orElseThrow(() -> new RuntimeException("Error: La eps con id " + dto.getEpsId() + "no existe."));
+                .orElseThrow(() -> new ResourceNotFoundException("Error: La eps con id " + dto.getEpsId() + "no existe."));
 
         //Mapeo de paciente
         PacienteEntity paciente = PacienteMapper.toEntity(dto);
@@ -48,6 +57,43 @@ public class PacienteService {
         PacienteEntity pacienteGuardado = pacienteRepository.save(paciente);
 
         return PacienteMapper.toDTO(pacienteGuardado);
+    }
+
+    public PacienteDTO actualizarPaciente(PacienteDTO dto) {
+
+        PacienteEntity pacienteEncontrado = pacienteRepository.findByNumeroDocumento(dto.getNumeroDocumento())
+                .orElseThrow(() -> new ResourceNotFoundException("Error: El paciente que desea actualizar no existe."));
+
+        Optional<PacienteEntity> pacienteEmail = pacienteRepository.findByEmail(dto.getEmail());
+
+        if (pacienteEmail.isPresent()) {
+            PacienteEntity duenoEmail = pacienteEmail.get();
+
+            if (!duenoEmail.getNumeroDocumento().equalsIgnoreCase(dto.getNumeroDocumento())) {
+                throw new DuplicateResourceException("Error: El email que intenta actualizar, " +
+                        "ya existe, pertenece al paciente con CC: " + duenoEmail.getNumeroDocumento());
+            }
+        }
+
+
+        EpsEntity epsEncontrada = epsRepository.findById(dto.getEpsId()).orElseThrow(
+                () -> new ResourceNotFoundException("Error: La eps con id " + dto.getEpsId() + "no existe."));
+
+        pacienteEncontrado.setNombre(dto.getNombre());
+        pacienteEncontrado.setApellido(dto.getApellido());
+        pacienteEncontrado.setTipoDocumento(dto.getTipoDocumento());
+        pacienteEncontrado.setNumeroDocumento(dto.getNumeroDocumento());
+        pacienteEncontrado.setGenero(dto.getGenero());
+        pacienteEncontrado.setEmail(dto.getEmail());
+        pacienteEncontrado.setFechaNacimiento(dto.getFechaNacimiento());
+        pacienteEncontrado.setTelefono(dto.getTelefono());
+        pacienteEncontrado.setRegimen(dto.getRegimen());
+
+        pacienteEncontrado.setEps(epsEncontrada);
+        PacienteEntity pacienteActualizado = pacienteRepository.save(pacienteEncontrado);
+
+        return PacienteMapper.toDTO(pacienteActualizado);
+
     }
 
 }

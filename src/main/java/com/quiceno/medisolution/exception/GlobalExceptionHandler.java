@@ -11,17 +11,26 @@ import java.time.LocalDateTime;
 @RestControllerAdvice //Esta anotación le dice a spring que debe vigilar TODOS los controladores
 public class GlobalExceptionHandler {
 
-    //Esta anotación dice que si en algún lugar sale un runtimeException, que sea atrapado aquí
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorDTO> manejarRuntimeException(RuntimeException ex){
+    //Aquí estoy usando una excepción personalizada atrapada por el ExceptionHandler
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorDTO> manejarNotFoudException(ResourceNotFoundException ex) {
 
         ErrorDTO error = new ErrorDTO(
                 ex.getMessage(), //El mensaje del error
                 HttpStatus.NOT_FOUND.value(), //Pone que es un error 404
                 LocalDateTime.now()
         );
-
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 
+    // Este metodo captura cuando se está intentando hacer una transacción con un elemento duplicado
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorDTO> manejarDuplicateResourceException(DuplicateResourceException ex) {
+        ErrorDTO error = new ErrorDTO(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }

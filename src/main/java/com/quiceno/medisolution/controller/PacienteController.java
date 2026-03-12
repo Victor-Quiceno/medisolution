@@ -14,27 +14,35 @@ public class PacienteController {
 
     private final PacienteService pacienteService;
 
-    public PacienteController(PacienteService pacienteService){
+    public PacienteController(PacienteService pacienteService) {
         this.pacienteService = pacienteService;
     }
 
     @PostMapping()
-    public ResponseEntity<PacienteDTO> guardarPaciente(@RequestBody PacienteDTO dto){
+    public ResponseEntity<PacienteDTO> guardarPaciente(@RequestBody PacienteDTO dto) {
 
         PacienteDTO pacienteGuardado = pacienteService.guardarPaciente(dto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteGuardado); }
+        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteGuardado);
+    }
 
     @GetMapping()
-    public ResponseEntity<List<PacienteDTO>> listarPacientes(){
+    public ResponseEntity<List<PacienteDTO>> listarPacientes() {
         return ResponseEntity.ok(pacienteService.listar());
     }
 
     @GetMapping("/{numeroDocumento}")
-    public ResponseEntity<PacienteDTO> buscarPorDocumento(@PathVariable String numeroDocumento){
+    public ResponseEntity<PacienteDTO> buscarPorDocumento(@PathVariable String numeroDocumento) {
 
         PacienteDTO pacienteEncontrado = pacienteService.buscarPorNumeroDocumento(numeroDocumento);
         return ResponseEntity.ok(pacienteEncontrado);
+    }
+
+    @PutMapping()
+    public ResponseEntity<PacienteDTO> actualizarPaciente(@RequestBody PacienteDTO dto) {
+
+        PacienteDTO pacienteActualizado = pacienteService.actualizarPaciente(dto);
+        return ResponseEntity.status(HttpStatus.OK).body(pacienteActualizado);
     }
 
 }
