@@ -3,10 +3,13 @@ package com.quiceno.medisolution.exception;
 import com.quiceno.medisolution.dto.ErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice //Esta anotación le dice a spring que debe vigilar TODOS los controladores
 public class GlobalExceptionHandler {
@@ -33,4 +36,20 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    //Método para capturar las excepciones disparadas por el @Valid (Bean Validation)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> manejarValidaciones(MethodArgumentNotValidException ex){
+
+        Map<String, String>errores = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            String campo = error.getField();
+            String mensaje = error.getDefaultMessage();
+
+            errores.put(campo, mensaje);
+        });
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
+    }
+
 }

@@ -2,6 +2,7 @@ package com.quiceno.medisolution.controller;
 
 import com.quiceno.medisolution.dto.PacienteDTO;
 import com.quiceno.medisolution.service.PacienteService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class PacienteController {
     }
 
     @PostMapping()
-    public ResponseEntity<PacienteDTO> guardarPaciente(@RequestBody PacienteDTO dto) {
+    public ResponseEntity<PacienteDTO> guardarPaciente(@Valid @RequestBody PacienteDTO dto) {
 
         PacienteDTO pacienteGuardado = pacienteService.guardarPaciente(dto);
 
@@ -39,7 +40,7 @@ public class PacienteController {
     }
 
     @PutMapping()
-    public ResponseEntity<PacienteDTO> actualizarPaciente(@RequestBody PacienteDTO dto) {
+    public ResponseEntity<PacienteDTO> actualizarPaciente(@Valid @RequestBody PacienteDTO dto) {
 
         PacienteDTO pacienteActualizado = pacienteService.actualizarPaciente(dto);
         return ResponseEntity.status(HttpStatus.OK).body(pacienteActualizado);
