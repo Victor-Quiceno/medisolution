@@ -28,8 +28,13 @@ public class PacienteController {
     }
 
     @GetMapping()
+    public ResponseEntity<List<PacienteDTO>> listarPacientesActivos(){
+        return ResponseEntity.ok(pacienteService.listarActivo());
+    }
+
+    @GetMapping("/todo")
     public ResponseEntity<List<PacienteDTO>> listarPacientes() {
-        return ResponseEntity.ok(pacienteService.listar());
+        return ResponseEntity.ok(pacienteService.listarTodo());
     }
 
     @GetMapping("/{numeroDocumento}")

@@ -1,5 +1,6 @@
 package com.quiceno.medisolution.entity;
 
+import com.quiceno.medisolution.enums.Estado;
 import com.quiceno.medisolution.enums.Genero;
 import com.quiceno.medisolution.enums.Regimen;
 import com.quiceno.medisolution.enums.TipoDocumento;
@@ -52,5 +53,9 @@ public class PacienteEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "eps_id", nullable = false)
     private EpsEntity eps;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
+    private Estado estado;
 
 }

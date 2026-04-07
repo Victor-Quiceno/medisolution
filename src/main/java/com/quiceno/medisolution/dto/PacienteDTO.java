@@ -1,6 +1,7 @@
 package com.quiceno.medisolution.dto;
 
 import com.quiceno.medisolution.entity.EpsEntity;
+import com.quiceno.medisolution.enums.Estado;
 import com.quiceno.medisolution.enums.Genero;
 import com.quiceno.medisolution.enums.Regimen;
 import com.quiceno.medisolution.enums.TipoDocumento;
@@ -54,5 +55,7 @@ public class PacienteDTO {
 
     @NotNull(message = "El campo de epsId es obligatorio.")
     private Long epsId;
+
+    private Estado estado;
 
 }

@@ -3,6 +3,7 @@ package com.quiceno.medisolution.service;
 import com.quiceno.medisolution.dto.PacienteDTO;
 import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
+import com.quiceno.medisolution.enums.Estado;
 import com.quiceno.medisolution.exception.DuplicateResourceException;
 import com.quiceno.medisolution.exception.ResourceNotFoundException;
 import com.quiceno.medisolution.mapper.PacienteMapper;
@@ -26,9 +27,13 @@ public class PacienteService {
         this.epsRepository = epsRepository;
     }
 
-    public List<PacienteDTO> listar() {
+    public List<PacienteDTO> listarTodo() {
         return pacienteRepository.findAll().stream().map(PacienteMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<PacienteDTO> listarActivo(){
+        return pacienteRepository.findByEstado(Estado.ACTIVO).stream().map(PacienteMapper::toDTO).collect(Collectors.toList());
     }
 
     public PacienteDTO buscarPorNumeroDocumento(String numeroDocumento) {
@@ -40,6 +45,9 @@ public class PacienteService {
     }
 
     public PacienteDTO guardarPaciente(PacienteDTO dto) {
+
+        dto.setId(null);
+        if (pacienteRepository.existsByNumeroDocumento(dto.getNumeroDocumento())){ throw new DuplicateResourceException("Error: El paciente que intenta crear ya existe en el sistema");}
 
         if (pacienteRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateResourceException("El email " + dto.getEmail() + ", ya está siendo utilizado por otro paciente.");
@@ -61,11 +69,12 @@ public class PacienteService {
 
     public PacienteDTO actualizarPaciente(PacienteDTO dto) {
 
+        //Validar si el paciente que se quiere actualizar existe
         PacienteEntity pacienteEncontrado = pacienteRepository.findByNumeroDocumento(dto.getNumeroDocumento())
                 .orElseThrow(() -> new ResourceNotFoundException("Error: El paciente que desea actualizar no existe."));
 
+        //Validar si el email nuevo ya existe
         Optional<PacienteEntity> pacienteEmail = pacienteRepository.findByEmail(dto.getEmail());
-
         if (pacienteEmail.isPresent()) {
             PacienteEntity duenoEmail = pacienteEmail.get();
 
@@ -75,7 +84,7 @@ public class PacienteService {
             }
         }
 
-
+        //Validar si la eps asignada existe
         EpsEntity epsEncontrada = epsRepository.findById(dto.getEpsId()).orElseThrow(
                 () -> new ResourceNotFoundException("Error: La eps con id " + dto.getEpsId() + "no existe."));
 
@@ -94,6 +103,15 @@ public class PacienteService {
 
         return PacienteMapper.toDTO(pacienteActualizado);
 
+    }
+
+    public boolean eliminar (Long id){
+        PacienteEntity paciente = pacienteRepository.findById(id).orElseThrow(
+                () ->  new ResourceNotFoundException("Error: Paciente no encontrado"));
+        paciente.setEstado(Estado.INACTIVO);
+        pacienteRepository.save(paciente);
+
+        return true;
     }
 
 }
