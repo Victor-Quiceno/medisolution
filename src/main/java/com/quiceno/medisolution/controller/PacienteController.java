@@ -3,10 +3,14 @@ package com.quiceno.medisolution.controller;
 import com.quiceno.medisolution.dto.PacienteDTO;
 import com.quiceno.medisolution.service.PacienteService;
 import jakarta.validation.Valid;
+import lombok.Builder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 @RestController
@@ -28,13 +32,13 @@ public class PacienteController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<PacienteDTO>> listarPacientesActivos(){
-        return ResponseEntity.ok(pacienteService.listarActivo());
+    public ResponseEntity<Page<PacienteDTO>> listarPacientesActivos(@PageableDefault(size = 10, sort = "nombre") Pageable pageable){
+        return ResponseEntity.ok(pacienteService.listarActivo(pageable));
     }
 
     @GetMapping("/todo")
-    public ResponseEntity<List<PacienteDTO>> listarPacientes() {
-        return ResponseEntity.ok(pacienteService.listarTodo());
+    public ResponseEntity<Page<PacienteDTO>> listarPacientes(@PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
+        return ResponseEntity.ok(pacienteService.listarTodo(pageable));
     }
 
     @GetMapping("/{numeroDocumento}")
@@ -49,6 +53,12 @@ public class PacienteController {
 
         PacienteDTO pacienteActualizado = pacienteService.actualizarPaciente(dto);
         return ResponseEntity.status(HttpStatus.OK).body(pacienteActualizado);
+    }
+
+    @DeleteMapping("/{id}")
+    public boolean eliminarPaciente (@Valid @PathVariable Long id){
+        pacienteService.eliminar(id);
+        return true;
     }
 
 }

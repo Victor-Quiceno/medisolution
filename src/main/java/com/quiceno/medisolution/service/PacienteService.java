@@ -9,8 +9,12 @@ import com.quiceno.medisolution.exception.ResourceNotFoundException;
 import com.quiceno.medisolution.mapper.PacienteMapper;
 import com.quiceno.medisolution.repository.EpsRepository;
 import com.quiceno.medisolution.repository.PacienteRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,13 +31,14 @@ public class PacienteService {
         this.epsRepository = epsRepository;
     }
 
-    public List<PacienteDTO> listarTodo() {
-        return pacienteRepository.findAll().stream().map(PacienteMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<PacienteDTO> listarTodo(Pageable pageable) {
+        Page<PacienteEntity> pacientes = pacienteRepository.findAll(pageable);
+        return pacientes.map(PacienteMapper::toDTO);
     }
 
-    public List<PacienteDTO> listarActivo(){
-        return pacienteRepository.findByEstado(Estado.ACTIVO).stream().map(PacienteMapper::toDTO).collect(Collectors.toList());
+    public Page<PacienteDTO> listarActivo(Pageable pageable){
+        Page<PacienteEntity> pacientes = pacienteRepository.findByEstado(Estado.ACTIVO, pageable);
+        return pacientes.map(PacienteMapper::toDTO);
     }
 
     public PacienteDTO buscarPorNumeroDocumento(String numeroDocumento) {
