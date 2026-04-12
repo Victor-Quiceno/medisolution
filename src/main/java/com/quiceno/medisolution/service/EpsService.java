@@ -7,6 +7,8 @@ import com.quiceno.medisolution.exception.DuplicateResourceException;
 import com.quiceno.medisolution.exception.ResourceNotFoundException;
 import com.quiceno.medisolution.mapper.EpsMapper;
 import com.quiceno.medisolution.repository.EpsRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,13 +23,15 @@ public class EpsService {
         this.epsRepository = epsRepository;
     }
 
-    public List<EpsDTO> listarTodas (){
+    public Page<EpsDTO> listarTodas (Pageable pageable){
+        Page<EpsEntity> listaEps = epsRepository.findAll(pageable);
 
-        return epsRepository.findAll().stream().map(EpsMapper::toDto).collect(Collectors.toList());
+        return listaEps.map(EpsMapper::toDto);
     }
 
-    public List<EpsDTO> listarActivas (){
-        return epsRepository.findByEstado(EstadoEps.ACTIVO).stream().map(EpsMapper::toDto).collect(Collectors.toList());
+    public Page<EpsDTO> listarActivas (Pageable pageable){
+        Page<EpsEntity> listaEps = epsRepository.findByEstado(EstadoEps.ACTIVO, pageable);
+        return listaEps.map(EpsMapper::toDto);
     }
 
     public EpsDTO buscarPorNit (String nit){

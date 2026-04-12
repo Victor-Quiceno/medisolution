@@ -10,14 +10,9 @@ import com.quiceno.medisolution.mapper.PacienteMapper;
 import com.quiceno.medisolution.repository.EpsRepository;
 import com.quiceno.medisolution.repository.PacienteRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.awt.print.Pageable;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PacienteService {

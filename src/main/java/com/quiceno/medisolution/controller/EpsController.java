@@ -3,6 +3,9 @@ package com.quiceno.medisolution.controller;
 import com.quiceno.medisolution.dto.EpsDTO;
 import com.quiceno.medisolution.service.EpsService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +20,13 @@ public class EpsController {
     public EpsController(EpsService epsService) {this.epsService = epsService;}
 
     @GetMapping
-    public ResponseEntity<List<EpsDTO>> listarActivas (){
-        return ResponseEntity.ok(epsService.listarActivas());
+    public ResponseEntity<Page<EpsDTO>> listarActivas (@PageableDefault(size = 10, sort = "Nombre") Pageable pageable){
+        return ResponseEntity.ok(epsService.listarActivas(pageable));
     }
 
     @GetMapping("/todo")
-    public ResponseEntity<List<EpsDTO>> listarTodo (){
-        return ResponseEntity.ok(epsService.listarTodas());
+    public ResponseEntity<Page<EpsDTO>> listarTodo (@PageableDefault(size = 10, sort = "Nombre") Pageable pageable){
+        return ResponseEntity.ok(epsService.listarTodas(pageable));
     }
 
     @GetMapping("/{nit}")
