@@ -9,14 +9,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -55,6 +53,8 @@ public class PacienteDTO {
 
     @NotNull(message = "El campo de epsId es obligatorio.")
     private Long epsId;
+
+    private EpsDTO eps;
 
     private Estado estado;
 

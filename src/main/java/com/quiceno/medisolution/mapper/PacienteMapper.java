@@ -1,25 +1,36 @@
 package com.quiceno.medisolution.mapper;
 
 import com.quiceno.medisolution.dto.PacienteDTO;
+import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
 
 public class PacienteMapper {
 
     public static PacienteDTO toDTO(PacienteEntity paciente) {
-        return new PacienteDTO(
-                paciente.getId(),
-                paciente.getNombre(),
-                paciente.getApellido(),
-                paciente.getTipoDocumento(),
-                paciente.getNumeroDocumento(),
-                paciente.getGenero(),
-                paciente.getEmail(),
-                paciente.getFechaNacimiento(),
-                paciente.getTelefono(),
-                paciente.getRegimen(),
-                paciente.getEps().getId(),
-                paciente.getEstado()
-        );
+        if (paciente == null){return null;}
+
+        PacienteDTO dto = new PacienteDTO();
+
+        dto.setId(paciente.getId());
+        dto.setNombre(paciente.getNombre());
+        dto.setApellido(paciente.getApellido());
+        dto.setTipoDocumento(paciente.getTipoDocumento());
+        dto.setNumeroDocumento(paciente.getNumeroDocumento());
+        dto.setGenero(paciente.getGenero());
+        dto.setEmail(paciente.getEmail());
+        dto.setFechaNacimiento(paciente.getFechaNacimiento());
+        dto.setTelefono(paciente.getTelefono());
+        dto.setRegimen(paciente.getRegimen());
+
+        if (paciente.getEps() != null){
+            dto.setEpsId(paciente.getEps().getId());
+            dto.setEps(EpsMapper.toDto(paciente.getEps()));
+        }
+        dto.setEstado(paciente.getEstado());
+
+
+
+        return dto;
     }
 
     public static PacienteEntity toEntity(PacienteDTO dto) {

@@ -6,15 +6,17 @@ import com.quiceno.medisolution.entity.EpsEntity;
 public class EpsMapper {
 
     public static EpsDTO toDto(EpsEntity eps) {
-        return new EpsDTO(
-                eps.getId(),
-                eps.getNombre(),
-                eps.getNit(),
-                eps.getDireccion(),
-                eps.getTelefono(),
-                eps.getEmail(),
-                eps.getEstado()
-        );
+
+        EpsDTO dto = new EpsDTO();
+
+        dto.setId(eps.getId());
+        dto.setNombre(eps.getNombre());
+        dto.setNit(eps.getNit());
+        dto.setDireccion(eps.getDireccion());
+        dto.setTelefono(eps.getTelefono());
+        dto.setEmail(eps.getEmail());
+        dto.setEstado(eps.getEstado());
+        return dto;
     }
 
     public static EpsEntity toEntity(EpsDTO dto) {
