@@ -1,5 +1,6 @@
 package com.quiceno.medisolution.entity;
 
+import com.quiceno.medisolution.enums.Estado;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,8 +19,12 @@ public class EspecialidadEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "nombre", nullable = false)
+    @Column(name = "nombre", nullable = false, length = 100, unique = true)
     private String nombre;
 
+    @Column(name = "descripcion", length = 255)
+    private String descripcion;
 
+    @Column(name = "estado", nullable = false)
+    private Estado estado;
 }

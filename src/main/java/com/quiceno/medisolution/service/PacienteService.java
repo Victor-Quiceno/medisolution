@@ -4,6 +4,7 @@ import com.quiceno.medisolution.dto.PacienteDTO;
 import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
 import com.quiceno.medisolution.enums.Estado;
+import com.quiceno.medisolution.enums.EstadoEps;
 import com.quiceno.medisolution.exception.DuplicateResourceException;
 import com.quiceno.medisolution.exception.ResourceNotFoundException;
 import com.quiceno.medisolution.mapper.PacienteMapper;
@@ -57,6 +58,9 @@ public class PacienteService {
         EpsEntity epsEncontrada = epsRepository.findById(dto.getEpsId())
                 .orElseThrow(() -> new ResourceNotFoundException("Error: La eps con id " + dto.getEpsId() + "no existe."));
 
+        if (epsEncontrada.getEstado() == EstadoEps.INACTIVO){throw new IllegalArgumentException("No se puede afiliar el paciente a una EPS inactiva");}
+        dto.setEstado(Estado.ACTIVO);
+
         //Mapeo de paciente
         PacienteEntity paciente = PacienteMapper.toEntity(dto);
 
@@ -87,6 +91,9 @@ public class PacienteService {
         //Validar si la eps asignada existe
         EpsEntity epsEncontrada = epsRepository.findById(dto.getEpsId()).orElseThrow(
                 () -> new ResourceNotFoundException("Error: La eps con id " + dto.getEpsId() + "no existe."));
+
+        //Validar si la eps asignada está inactiva
+        if (epsEncontrada.getEstado() == EstadoEps.INACTIVO){throw new IllegalArgumentException("La eps que intenta acutalizar al paciente no puede estar inactiva");}
 
         pacienteEncontrado.setNombre(dto.getNombre());
         pacienteEncontrado.setApellido(dto.getApellido());
