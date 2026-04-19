@@ -7,6 +7,7 @@ public class EspecialidadMapper {
 
     public static EspecialidadDTO toDTO(EspecialidadEntity entity) {
 
+        if (entity == null){return null;}
         EspecialidadDTO dto = new EspecialidadDTO();
         dto.setId(entity.getId());
         dto.setNombre(entity.getNombre());

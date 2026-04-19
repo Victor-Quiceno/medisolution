@@ -26,5 +26,6 @@ public class EspecialidadEntity {
     private String descripcion;
 
     @Column(name = "estado", nullable = false)
+    @Enumerated(EnumType.STRING)
     private Estado estado;
 }
