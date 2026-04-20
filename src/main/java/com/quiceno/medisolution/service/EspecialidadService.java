@@ -70,10 +70,11 @@ public class EspecialidadService {
 
     public EspecialidadDTO actualizar(EspecialidadDTO dto) {
 
+        //Validar si la especialidad a actualizar existe o no
         EspecialidadEntity encontrada = especialidadRepository.findById(dto.getId()).orElseThrow(
                 () -> new ResourceNotFoundException("La especialidad que intenta actualizar no existe."));
 
-
+        //Validar si el nombre actualizado ya le pertenece a otra especialidad
         Optional<EspecialidadEntity> especialidadExistente = especialidadRepository.findByNombre(dto.getNombre());
         if (especialidadExistente.isPresent() && !especialidadExistente.get().getId().equals(dto.getId())) {
             throw new DuplicateResourceException("Error: El nombre de la especialidad ya está en uso.");
