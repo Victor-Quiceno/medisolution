@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "medico")
@@ -41,9 +43,12 @@ public class MedicoEntity {
     @Column(name = "tarjeta_profesional", nullable = false, unique = true, length = 50)
     private String tarjetaProfesional;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "especialidad_id", nullable = false) //Aquí había puesto que sea único, lo quité por si acaso
-    private EspecialidadEntity especialidad;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "medico_especialidad",
+            joinColumns = @JoinColumn(name = "medico_id"), //Llave foránea de médico
+            inverseJoinColumns = @JoinColumn(name = "especialidad_id")) //Llave foránea de especialidad
+    private Set<EspecialidadEntity> especialidades = new HashSet<>(); //Se usa set para evitar duplicados de especialidades y hacer más eficiente el N:M
 
     @Column(name = "genero", nullable = false)
     @Enumerated(EnumType.STRING)

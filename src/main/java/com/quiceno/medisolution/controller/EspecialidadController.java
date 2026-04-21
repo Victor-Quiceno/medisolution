@@ -3,6 +3,7 @@ package com.quiceno.medisolution.controller;
 import com.quiceno.medisolution.dto.EspecialidadDTO;
 import com.quiceno.medisolution.service.EspecialidadService;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -37,16 +38,17 @@ public class EspecialidadController {
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
-    @PutMapping
-    public ResponseEntity<EspecialidadDTO> actualizar (@Valid @RequestBody EspecialidadDTO dto){
+    @PutMapping("/{id}")
+    public ResponseEntity<EspecialidadDTO> actualizar (@PathVariable Long id, @Valid @RequestBody EspecialidadDTO dto){
+        dto.setId(id);
         EspecialidadDTO actualizado = especialidadService.actualizar(dto);
         return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
-    public boolean eliminar (@PathVariable Long id){
+    public ResponseEntity<Void> eliminar (@PathVariable Long id){
         especialidadService.eliminar(id);
-        return true;
+        return ResponseEntity.noContent().build();
     }
 
 }

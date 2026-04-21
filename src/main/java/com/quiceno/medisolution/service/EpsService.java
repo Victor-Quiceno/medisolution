@@ -62,7 +62,7 @@ public class EpsService {
 
         //Validar si la eps existe
         EpsEntity eps = epsRepository.findById(dto.getId()).orElseThrow(
-                ()-> new ResourceNotFoundException("Erro: La eps que intenta actualizar no está en el sistema."));
+                ()-> new ResourceNotFoundException("Error: La eps que intenta actualizar no está en el sistema."));
 
         Optional<EpsEntity> epsNit = epsRepository.findByNit(dto.getNit());
         if (epsNit.isPresent()){

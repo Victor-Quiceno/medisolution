@@ -42,8 +42,9 @@ public class EpsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(epsGuardada);
     }
 
-    @PutMapping
-    public ResponseEntity<EpsDTO> actualizarEps(@Valid @RequestBody EpsDTO eps){
+    @PutMapping("{id}")
+    public ResponseEntity<EpsDTO> actualizarEps(@PathVariable Long id, @Valid @RequestBody EpsDTO eps){
+        eps.setId(id);
         EpsDTO epsActualizada = epsService.actualizar(eps);
         return ResponseEntity.status(HttpStatus.OK).body(epsActualizada);
     }
