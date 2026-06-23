@@ -24,7 +24,11 @@ public class MedicoDTO {
     private TipoDocumento tipoDocumento;
     private String numeroDocumento;
     private String tarjetaProfesional;
-    private Set<Long> especialidades;
+
+    // Este atributo solo es usado para recolectar los ID de las especialidades para cuando ser reciba un POST mapear las especialidades hacia el Set de especialidades
+    private Set<Long> especialidadesId;
+
+    private Set<EspecialidadDTO> especialidades;
     private Genero genero;
     private String email;
     private LocalDate fechaNacimiento;

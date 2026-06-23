@@ -15,4 +15,6 @@ public interface MedicoRepository extends JpaRepository<MedicoEntity, Long> {
     Page<MedicoEntity> findByEstado(Pageable pageable, Estado estado);
 
     Optional<MedicoEntity> findByNumeroDocumento(String numero);
+
+    boolean existsByNumeroDocumento(String numero);
 }

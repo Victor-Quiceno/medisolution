@@ -1,5 +1,6 @@
 package com.quiceno.medisolution.mapper;
 
+import com.quiceno.medisolution.dto.EspecialidadDTO;
 import com.quiceno.medisolution.dto.MedicoDTO;
 import com.quiceno.medisolution.entity.EspecialidadEntity;
 import com.quiceno.medisolution.entity.MedicoEntity;
@@ -19,11 +20,13 @@ public class MedicoMapper {
         dto.setNumeroDocumento(entity.getNumeroDocumento());
         dto.setTarjetaProfesional(entity.getTarjetaProfesional());
 
-        Set<Long> listaEspecialidadesIds = entity.getEspecialidades().stream()
-                .map(EspecialidadEntity::getId)
-                .collect(Collectors.toSet());
+        if (entity.getEspecialidades() != null){
+            Set<EspecialidadDTO> especialidadesDTO = entity.getEspecialidades().stream()
+                    .map(EspecialidadMapper::toDTO)
+                    .collect(Collectors.toSet());
+            dto.setEspecialidades(especialidadesDTO);
+        }
 
-        dto.setEspecialidades(listaEspecialidadesIds);
         dto.setGenero(entity.getGenero());
         dto.setEmail(entity.getEmail());
         dto.setFechaNacimiento(entity.getFechaNacimiento());
