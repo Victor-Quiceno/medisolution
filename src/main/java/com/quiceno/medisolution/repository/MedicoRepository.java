@@ -17,4 +17,8 @@ public interface MedicoRepository extends JpaRepository<MedicoEntity, Long> {
     Optional<MedicoEntity> findByNumeroDocumento(String numero);
 
     boolean existsByNumeroDocumento(String numero);
+
+    Optional<MedicoEntity> findByTarjetaProfesional(String numero);
+
+    Optional<MedicoEntity> findByEmail(String Email);
 }

@@ -84,7 +84,7 @@ public class PacienteService {
 
             if (!duenoEmail.getNumeroDocumento().equalsIgnoreCase(dto.getNumeroDocumento())) {
                 throw new DuplicateResourceException("Error: El email que intenta actualizar, " +
-                        "ya existe, pertenece al paciente con CC: " + duenoEmail.getNumeroDocumento());
+                        "ya existe.");
             }
         }
 
