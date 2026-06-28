@@ -23,43 +23,46 @@ public class MedicoService {
 
     private final MedicoRepository medicoRepository;
     private final EspecialidadRepository especialidadRepository;
-    public MedicoService(MedicoRepository medicoRepository, EspecialidadRepository especialidadRepository){
+
+    public MedicoService(MedicoRepository medicoRepository, EspecialidadRepository especialidadRepository) {
         this.medicoRepository = medicoRepository;
         this.especialidadRepository = especialidadRepository;
     }
 
-    public Page<MedicoDTO> listarTodo (Pageable pageable){
+    public Page<MedicoDTO> listarTodo(Pageable pageable) {
         return medicoRepository.findAll(pageable).map(MedicoMapper::toDTO);
     }
 
-    public Page<MedicoDTO> listarActivo (Pageable pageable){
+    public Page<MedicoDTO> listarActivo(Pageable pageable) {
         return medicoRepository.findByEstado(pageable, Estado.ACTIVO).map(MedicoMapper::toDTO);
     }
 
-    public MedicoDTO listarPorId (Long id){
+    public MedicoDTO listarPorId(Long id) {
         MedicoEntity encontrado = medicoRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("No se encontró el médico con id: " + id ));
+                () -> new ResourceNotFoundException("No se encontró el médico con id: " + id));
 
         return MedicoMapper.toDTO(encontrado);
     }
 
-    public MedicoDTO listarPorNumeroDocumento (String numero){
+    public MedicoDTO listarPorNumeroDocumento(String numero) {
         MedicoEntity encontrado = medicoRepository.findByNumeroDocumento(numero).orElseThrow(
                 () -> new ResourceNotFoundException("No se encontró al médico con el número de documento: " + numero));
 
         return MedicoMapper.toDTO(encontrado);
     }
 
-    public MedicoDTO guardar (MedicoDTO dto){
+    public MedicoDTO guardar(MedicoDTO dto) {
 
         dto.setId(null);
 
-        if (medicoRepository.existsByNumeroDocumento(dto.getNumeroDocumento())){throw new DuplicateResourceException("Error: El médico que intenta ingresar ya existe");}
+        if (medicoRepository.existsByNumeroDocumento(dto.getNumeroDocumento())) {
+            throw new DuplicateResourceException("Error: El médico que intenta ingresar ya existe");
+        }
 
         MedicoEntity medicoGuardar = MedicoMapper.toEntity(dto);
 
         //Mapear la lista de ids de las especialidades en objetos de tipo EspecialidadEntity y luego setearlas en el médico a guardar
-        if (dto.getEspecialidadesId() != null && !dto.getEspecialidadesId().isEmpty()){
+        if (dto.getEspecialidadesId() != null && !dto.getEspecialidadesId().isEmpty()) {
 
             Set<EspecialidadEntity> especialidadesEncontradas = dto.getEspecialidadesId().stream()
                     .map(id -> especialidadRepository.findById(id).orElseThrow(
@@ -70,7 +73,7 @@ public class MedicoService {
         }
 
         //Ponerle un estado por defecto por si no viene con él
-        if (dto.getEstado() == null){
+        if (dto.getEstado() == null) {
             medicoGuardar.setEstado(Estado.ACTIVO);
         }
 
@@ -79,48 +82,37 @@ public class MedicoService {
         return MedicoMapper.toDTO(medicoGuardado);
     }
 
-    public MedicoDTO actualizar (MedicoDTO dto) {
+    public MedicoDTO actualizar(MedicoDTO dto) {
 
-        //Validación: El médico a actualizar existe
-        MedicoEntity medicoActualizar = medicoRepository.findByNumeroDocumento(dto.getNumeroDocumento())
+        // 1. Buscamos SIEMPRE por el ID interno de la BD, es el único dato en el que podemos confiar.
+        MedicoEntity medicoActualizar = medicoRepository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Error: El médico que intenta actualizar no existe."));
 
-        //Validación: La tarjeta profesional a actualizar no pertenece a alguien más
-        Optional<MedicoEntity> medicoTarjetaProf = medicoRepository.findByTarjetaProfesional(dto.getTarjetaProfesional());
-        if (medicoTarjetaProf.isPresent()){
-            MedicoEntity duenoTarjeta = medicoTarjetaProf.get();
-
-            if (!duenoTarjeta.getTarjetaProfesional().equalsIgnoreCase(dto.getTarjetaProfesional())){
-                throw new DuplicateResourceException("Error: El email que intenta actualizar ya le pertenece a otro médico.");
+        // 2. Validación de Documento: Si lo está cambiando, verificar que el nuevo no le pertenezca a otro
+        if (!medicoActualizar.getNumeroDocumento().equals(dto.getNumeroDocumento())) {
+            if (medicoRepository.existsByNumeroDocumento(dto.getNumeroDocumento())) {
+                throw new DuplicateResourceException("Error: El nuevo número de documento ya le pertenece a otro médico.");
             }
         }
 
-        //Validación: El email a actualizar no le pertenece a otra persona
+        // 3. Validación de Tarjeta Profesional
+        Optional<MedicoEntity> medicoTarjeta = medicoRepository.findByTarjetaProfesional(dto.getTarjetaProfesional());
+        if (medicoTarjeta.isPresent() && !medicoTarjeta.get().getId().equals(medicoActualizar.getId())) {
+            throw new DuplicateResourceException("Error: La tarjeta profesional ya le pertenece a otro médico.");
+        }
+
+        // 4. Validación de Email
         Optional<MedicoEntity> medicoEmail = medicoRepository.findByEmail(dto.getEmail());
-        if (medicoEmail.isPresent()){
-            MedicoEntity duenoEmail = medicoEmail.get();
-
-            if (!duenoEmail.getEmail().equalsIgnoreCase(dto.getEmail())){
-                throw new DuplicateResourceException("Error: El email que intenta acutalizar ya le pertenece a otro médico");
-            }
+        if (medicoEmail.isPresent() && !medicoEmail.get().getId().equals(medicoActualizar.getId())) {
+            throw new DuplicateResourceException("Error: El email que intenta actualizar ya le pertenece a otro médico.");
         }
 
+        // 5. Actualización de datos básicos
         medicoActualizar.setNombre(dto.getNombre());
         medicoActualizar.setApellido(dto.getApellido());
         medicoActualizar.setTipoDocumento(dto.getTipoDocumento());
         medicoActualizar.setNumeroDocumento(dto.getNumeroDocumento());
         medicoActualizar.setTarjetaProfesional(dto.getTarjetaProfesional());
-
-        //Rellenar las especialidades del médico con los id de estas dadas por el dto
-        if (dto.getEspecialidadesId() != null && !dto.getEspecialidadesId().isEmpty()){
-            Set<EspecialidadEntity> especialidades = dto.getEspecialidadesId().stream()
-                    .map(id -> especialidadRepository.findById(id).orElseThrow(
-                            () -> new ResourceNotFoundException("Error: La especialidad con id " + id + " no existe.")))
-                    .collect(Collectors.toSet());
-
-            medicoActualizar.setEspecialidades(especialidades);
-        }
-
         medicoActualizar.setGenero(dto.getGenero());
         medicoActualizar.setEmail(dto.getEmail());
         medicoActualizar.setFechaNacimiento(dto.getFechaNacimiento());
@@ -128,18 +120,29 @@ public class MedicoService {
         medicoActualizar.setArea(dto.getArea());
         medicoActualizar.setEstado(dto.getEstado());
 
-        MedicoEntity medicoActualizado = medicoRepository.save(medicoActualizar);
+        // 6. Especialidades, si mandan una lista vacía, limpiamos las especialidades
+        if (dto.getEspecialidadesId() != null) {
+            if (dto.getEspecialidadesId().isEmpty()) {
+                medicoActualizar.getEspecialidades().clear(); // El médico decidió quitarse todas las especialidades
+            } else {
+                Set<EspecialidadEntity> especialidades = dto.getEspecialidadesId().stream()
+                        .map(id -> especialidadRepository.findById(id).orElseThrow(
+                                () -> new ResourceNotFoundException("Error: La especialidad con id " + id + " no existe.")))
+                        .collect(Collectors.toSet());
+                medicoActualizar.setEspecialidades(especialidades);
+            }
+        }
 
+        MedicoEntity medicoActualizado = medicoRepository.save(medicoActualizar);
         return MedicoMapper.toDTO(medicoActualizado);
     }
 
     public boolean eliminar (Long id){
-
         MedicoEntity medicoEliminar = medicoRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Error: El médico que intenta eliminar no existe"));
+                () -> new ResourceNotFoundException("Error: El médico a eliminar no existe"));
 
         medicoEliminar.setEstado(Estado.INACTIVO);
-        MedicoEntity medicoEliminado = medicoRepository.save(medicoEliminar);
+        medicoRepository.save(medicoEliminar);
 
         return true;
     }
