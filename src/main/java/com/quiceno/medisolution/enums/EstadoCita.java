@@ -1,5 +1,5 @@
 package com.quiceno.medisolution.enums;
 
 public enum EstadoCita {
-    PROGRAMADA, CANCELADA, ASISTIDA
+    PROGRAMADA, CANCELADA, COMPLETADA, AUSENTE
 }

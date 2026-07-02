@@ -35,7 +35,7 @@ public class MedicoController {
         return ResponseEntity.ok(medicoService.listarPorId(id));
     }
 
-    @GetMapping("/documento/{documento}")
+    @GetMapping("/documentos/{documento}")
     public ResponseEntity<MedicoDTO> listarPorDocumento(@PathVariable String documento) {
         return ResponseEntity.ok(medicoService.listarPorNumeroDocumento(documento));
     }

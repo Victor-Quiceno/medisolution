@@ -32,6 +32,10 @@ public class CitaEntity {
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fecha;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "especialidad_id", nullable = false)
+    private EspecialidadEntity especialidad;
+
     @Column(name = "motivo", nullable = false)
     private String motivo;
 
