@@ -1,9 +1,30 @@
 package com.quiceno.medisolution.repository;
 
 import com.quiceno.medisolution.entity.CitaEntity;
+import com.quiceno.medisolution.entity.EspecialidadEntity;
+import com.quiceno.medisolution.enums.EstadoCita;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
-public interface CitaRepository extends JpaRepository<CitaEntity, Long> {
+public interface CitaRepository extends JpaRepository<CitaEntity, Long>,
+                                        JpaSpecificationExecutor<CitaEntity> {
+
+    Page<CitaEntity> findByEstado (Pageable pageable, EstadoCita estado);
+
+    Page<CitaEntity> findByPacienteNumeroDocumento(Pageable pageable, String documento);
+
+    Page<CitaEntity> findByMedicoTarjetaProfesional (Pageable pageable, String tarjeta);
+
+    Page<CitaEntity> findByEspecialidadId (Pageable pageable, Long id);
+
+    boolean existsByMedicoIdAndFecha (Long medicoId, LocalDateTime fecha);
+
+    boolean existsByPacienteIdAndFecha (Long pacienteId, LocalDateTime fecha);
+
 }
