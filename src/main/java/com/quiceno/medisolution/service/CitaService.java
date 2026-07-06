@@ -40,13 +40,13 @@ public class CitaService {
         this.citaRepository = citaRepository;
     }
 
-    public Page<CitaDTO> buscarCitasDinamico(EstadoCita estado, String documento, String tarjeta, Pageable pageable) {
+    public Page<CitaDTO> listarCitasDinamico(EstadoCita estado, String documentoPaciente, String tarjetaMedico, Pageable pageable) {
 
         // Combinamos los filtros. Si un filtro devuelve null, Spring lo ignora en el SQL final.
         Specification<CitaEntity> spec = Specification
                 .where(CitaSpecifications.conEstado(estado))
-                .and(CitaSpecifications.conDocumentoPaciente(documento))
-                .and(CitaSpecifications.conTarjetaMedico(tarjeta));
+                .and(CitaSpecifications.conDocumentoPaciente(documentoPaciente))
+                .and(CitaSpecifications.conTarjetaMedico(tarjetaMedico));
 
         // Ejecutamos la consulta dinámica
         return citaRepository.findAll(spec, pageable).map(CitaMapper::toDTO);

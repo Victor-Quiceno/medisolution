@@ -20,19 +20,19 @@ public class CitaSpecifications {
     }
 
     // Bloque 2: Filtrar por Documento del Paciente (Hace el JOIN automáticamente)
-    public static Specification<CitaEntity> conDocumentoPaciente(String documento) {
+    public static Specification<CitaEntity> conDocumentoPaciente(String documentoPaciente) {
         return (root, query, cb) -> {
-            if (documento == null || documento.isEmpty()) return null;
+            if (documentoPaciente == null || documentoPaciente.isEmpty()) return null;
             // Viaja a la entidad "paciente" y busca "numeroDocumento"
-            return cb.equal(root.join("paciente").get("numeroDocumento"), documento);
+            return cb.equal(root.join("paciente").get("numeroDocumento"), documentoPaciente);
         };
     }
 
     // Bloque 3: Filtrar por Tarjeta del Médico
-    public static Specification<CitaEntity> conTarjetaMedico(String tarjeta) {
+    public static Specification<CitaEntity> conTarjetaMedico(String tarjetaMedico) {
         return (root, query, cb) -> {
-            if (tarjeta == null || tarjeta.isEmpty()) return null;
-            return cb.equal(root.join("medico").get("tarjetaProfesional"), tarjeta);
+            if (tarjetaMedico == null || tarjetaMedico.isEmpty()) return null;
+            return cb.equal(root.join("medico").get("tarjetaProfesional"), tarjetaMedico);
         };
     }
 }

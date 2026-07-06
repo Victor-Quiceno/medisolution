@@ -15,14 +15,6 @@ import java.time.LocalDateTime;
 public interface CitaRepository extends JpaRepository<CitaEntity, Long>,
                                         JpaSpecificationExecutor<CitaEntity> {
 
-    Page<CitaEntity> findByEstado (Pageable pageable, EstadoCita estado);
-
-    Page<CitaEntity> findByPacienteNumeroDocumento(Pageable pageable, String documento);
-
-    Page<CitaEntity> findByMedicoTarjetaProfesional (Pageable pageable, String tarjeta);
-
-    Page<CitaEntity> findByEspecialidadId (Pageable pageable, Long id);
-
     boolean existsByMedicoIdAndFecha (Long medicoId, LocalDateTime fecha);
 
     boolean existsByPacienteIdAndFecha (Long pacienteId, LocalDateTime fecha);
