@@ -1,6 +1,7 @@
 package com.quiceno.medisolution.controller;
 
 import com.quiceno.medisolution.dto.PacienteDTO;
+import com.quiceno.medisolution.enums.Estado;
 import com.quiceno.medisolution.service.PacienteService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -21,29 +22,29 @@ public class PacienteController {
         this.pacienteService = pacienteService;
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<PacienteDTO> listarPorId (@PathVariable Long id){
+        return ResponseEntity.ok(pacienteService.listarPorId(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<PacienteDTO>> listar (
+            @RequestParam(required = false) Estado estado,
+            @RequestParam(required = false) String numeroDocumento,
+            @RequestParam(required = false) String email,
+            @PageableDefault(size = 10, sort = "apellido") Pageable pageable
+            ){
+        Page<PacienteDTO> pacientes = pacienteService.listar(estado, numeroDocumento, email, pageable);
+
+        return ResponseEntity.ok(pacientes);
+    }
+
     @PostMapping()
     public ResponseEntity<PacienteDTO> guardarPaciente(@Valid @RequestBody PacienteDTO dto) {
 
         PacienteDTO pacienteGuardado = pacienteService.guardarPaciente(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteGuardado);
-    }
-
-    @GetMapping()
-    public ResponseEntity<Page<PacienteDTO>> listarPacientesActivos(@PageableDefault(size = 10, sort = "nombre") Pageable pageable){
-        return ResponseEntity.ok(pacienteService.listarActivo(pageable));
-    }
-
-    @GetMapping("/todo")
-    public ResponseEntity<Page<PacienteDTO>> listarPacientes(@PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
-        return ResponseEntity.ok(pacienteService.listarTodo(pageable));
-    }
-
-    @GetMapping("/{numeroDocumento}")
-    public ResponseEntity<PacienteDTO> buscarPorDocumento(@PathVariable String numeroDocumento) {
-
-        PacienteDTO pacienteEncontrado = pacienteService.buscarPorNumeroDocumento(numeroDocumento);
-        return ResponseEntity.ok(pacienteEncontrado);
     }
 
     @PutMapping("/{id}")

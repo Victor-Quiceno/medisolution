@@ -1,6 +1,7 @@
 package com.quiceno.medisolution.service;
 
 import com.quiceno.medisolution.dto.PacienteDTO;
+import com.quiceno.medisolution.entity.CitaEntity;
 import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
 import com.quiceno.medisolution.enums.Estado;
@@ -10,8 +11,10 @@ import com.quiceno.medisolution.exception.ResourceNotFoundException;
 import com.quiceno.medisolution.mapper.PacienteMapper;
 import com.quiceno.medisolution.repository.EpsRepository;
 import com.quiceno.medisolution.repository.PacienteRepository;
+import com.quiceno.medisolution.repository.specs.PacienteSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -27,22 +30,21 @@ public class PacienteService {
         this.epsRepository = epsRepository;
     }
 
-    public Page<PacienteDTO> listarTodo(Pageable pageable) {
-        Page<PacienteEntity> pacientes = pacienteRepository.findAll(pageable);
-        return pacientes.map(PacienteMapper::toDTO);
+
+    public Page<PacienteDTO> listar (Estado estado, String numeroDocumento, String email, Pageable pageable){
+        Specification<PacienteEntity> spec = Specification
+                .where(PacienteSpecifications.conEstado(estado))
+                .and(PacienteSpecifications.conNumeroDocumento(numeroDocumento))
+                .and(PacienteSpecifications.conEmail(email));
+
+        return pacienteRepository.findAll(spec, pageable).map(PacienteMapper::toDTO);
     }
 
-    public Page<PacienteDTO> listarActivo(Pageable pageable){
-        Page<PacienteEntity> pacientes = pacienteRepository.findByEstado(Estado.ACTIVO, pageable);
-        return pacientes.map(PacienteMapper::toDTO);
-    }
+    public PacienteDTO listarPorId (Long id){
+        PacienteEntity pacienteEncontrado = pacienteRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Error: El paciente que intenta encontrar con el id ingresado, no existe."));
 
-    public PacienteDTO buscarPorNumeroDocumento(String numeroDocumento) {
-        PacienteEntity paciente = pacienteRepository.findByNumeroDocumento(numeroDocumento)
-                .orElseThrow(() -> new ResourceNotFoundException("El paciente con número de documento: " + numeroDocumento +
-                        ", no ha sido encontrado."));
-
-        return PacienteMapper.toDTO(paciente);
+        return PacienteMapper.toDTO(pacienteEncontrado);
     }
 
     public PacienteDTO guardarPaciente(PacienteDTO dto) {
@@ -73,20 +75,33 @@ public class PacienteService {
 
     public PacienteDTO actualizarPaciente(PacienteDTO dto) {
 
-        //Validar si el paciente que se quiere actualizar existe
-        PacienteEntity pacienteEncontrado = pacienteRepository.findByNumeroDocumento(dto.getNumeroDocumento())
-                .orElseThrow(() -> new ResourceNotFoundException("Error: El paciente que desea actualizar no existe."));
+// 1. Buscamos al paciente original que se quiere actualizar
+        PacienteEntity pacienteActual = pacienteRepository.findById(dto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
 
-        //Validar si el email nuevo ya existe
-        Optional<PacienteEntity> pacienteEmail = pacienteRepository.findByEmail(dto.getEmail());
-        if (pacienteEmail.isPresent()) {
-            PacienteEntity duenoEmail = pacienteEmail.get();
+// 2. Validar EMAIL
+        Specification<PacienteEntity> specEmail = Specification.where(PacienteSpecifications.conEmail(dto.getEmail()));
+        Optional<PacienteEntity> pacienteConEseEmail = pacienteRepository.findOne(specEmail);
 
-            if (!duenoEmail.getNumeroDocumento().equalsIgnoreCase(dto.getNumeroDocumento())) {
-                throw new DuplicateResourceException("Error: El email que intenta actualizar, " +
-                        "ya existe.");
+        if (pacienteConEseEmail.isPresent()) {
+            PacienteEntity duenoEmail = pacienteConEseEmail.get();
+            // Si encontramos a alguien con ese email, y su ID NO ES el mismo del paciente que estamos actualizando... ¡Robo detectado!
+            if (!duenoEmail.getId().equals(pacienteActual.getId())) {
+                throw new DuplicateResourceException("Error: El email '" + dto.getEmail() + "' ya está registrado a nombre de otro paciente.");
             }
         }
+
+// 3. Validar NÚMERO DE DOCUMENTO
+        Specification<PacienteEntity> specDocumento = Specification.where(PacienteSpecifications.conNumeroDocumento(dto.getNumeroDocumento()));
+        Optional<PacienteEntity> pacienteConEseDoc = pacienteRepository.findOne(specDocumento);
+
+        if (pacienteConEseDoc.isPresent()) {
+            PacienteEntity duenoDoc = pacienteConEseDoc.get();
+            if (!duenoDoc.getId().equals(pacienteActual.getId())) {
+                throw new DuplicateResourceException("Error: El documento '" + dto.getNumeroDocumento() + "' ya le pertenece a otro paciente.");
+            }
+        }
+
 
         //Validar si la eps asignada existe
         EpsEntity epsEncontrada = epsRepository.findById(dto.getEpsId()).orElseThrow(
@@ -95,18 +110,18 @@ public class PacienteService {
         //Validar si la eps asignada está inactiva
         if (epsEncontrada.getEstado() == EstadoEps.INACTIVO){throw new IllegalArgumentException("La eps que intenta acutalizar al paciente no puede estar inactiva");}
 
-        pacienteEncontrado.setNombre(dto.getNombre());
-        pacienteEncontrado.setApellido(dto.getApellido());
-        pacienteEncontrado.setTipoDocumento(dto.getTipoDocumento());
-        pacienteEncontrado.setNumeroDocumento(dto.getNumeroDocumento());
-        pacienteEncontrado.setGenero(dto.getGenero());
-        pacienteEncontrado.setEmail(dto.getEmail());
-        pacienteEncontrado.setFechaNacimiento(dto.getFechaNacimiento());
-        pacienteEncontrado.setTelefono(dto.getTelefono());
-        pacienteEncontrado.setRegimen(dto.getRegimen());
+        pacienteActual.setNombre(dto.getNombre());
+        pacienteActual.setApellido(dto.getApellido());
+        pacienteActual.setTipoDocumento(dto.getTipoDocumento());
+        pacienteActual.setNumeroDocumento(dto.getNumeroDocumento());
+        pacienteActual.setGenero(dto.getGenero());
+        pacienteActual.setEmail(dto.getEmail());
+        pacienteActual.setFechaNacimiento(dto.getFechaNacimiento());
+        pacienteActual.setTelefono(dto.getTelefono());
+        pacienteActual.setRegimen(dto.getRegimen());
 
-        pacienteEncontrado.setEps(epsEncontrada);
-        PacienteEntity pacienteActualizado = pacienteRepository.save(pacienteEncontrado);
+        pacienteActual.setEps(epsEncontrada);
+        PacienteEntity pacienteActualizado = pacienteRepository.save(pacienteActual);
 
         return PacienteMapper.toDTO(pacienteActualizado);
 
