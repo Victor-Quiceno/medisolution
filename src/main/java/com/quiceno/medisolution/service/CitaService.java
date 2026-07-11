@@ -136,6 +136,8 @@ public class CitaService {
             ));
         }
 
+        System.out.println("El ID de la cita que llegó al Service es: " + dto.getId());
+
         // 4. Validamos disponibilidad SOLO si la fecha, el médico o el paciente cambiaron.
         // Usamos el ID actual (dto.getId()) para ignorar la cita que estamos editando.
         boolean medicoOcupado = citaRepository.existsByMedicoIdAndFechaAndIdNot(dto.getMedicoId(), dto.getFecha(), dto.getId());

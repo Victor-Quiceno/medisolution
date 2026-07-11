@@ -29,6 +29,7 @@ public class MedicoDTO {
     private Set<Long> especialidadesId;
 
     private Set<EspecialidadDTO> especialidades;
+
     private Genero genero;
     private String email;
     private LocalDate fechaNacimiento;

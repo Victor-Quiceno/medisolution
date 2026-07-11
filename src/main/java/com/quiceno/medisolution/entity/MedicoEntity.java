@@ -63,8 +63,7 @@ public class MedicoEntity {
     @Column(name = "telefono", nullable = false, length = 20)
     private String telefono;
 
-    //¿Esto podría ser una entidad en vez de un ENUM?
-    @Column(name = "area", nullable = false)
+    @Column(name = "area",length = 64, nullable = false)
     @Enumerated(EnumType.STRING)
     private Areas area;
 

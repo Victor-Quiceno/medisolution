@@ -80,4 +80,17 @@ public class GlobalExceptionHandler {
         // Jackson es tan inteligente que convertirá este Map en un objeto JSON perfecto
         return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> manejarArgumentosIlegales(
+            IllegalArgumentException exception, WebRequest webRequest){
+        ErrorDetallesDTO error = new ErrorDetallesDTO(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                webRequest.getDescription(false),
+                HttpStatus.CONFLICT.value()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 }

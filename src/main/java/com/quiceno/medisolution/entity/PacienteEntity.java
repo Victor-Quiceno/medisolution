@@ -34,7 +34,8 @@ public class PacienteEntity {
     @Column(name = "numero_documento", nullable = false, length = 20, unique = true)
     private String numeroDocumento;
 
-    @Column(name = "genero", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "genero",length = 64, nullable = false)
     private Genero genero;
 
     @Column(name = "email")
@@ -47,7 +48,7 @@ public class PacienteEntity {
     private String telefono;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "regimen", nullable = false)
+    @Column(name = "regimen",length = 64, nullable = false)
     private Regimen regimen;
 
     @ManyToOne(fetch = FetchType.LAZY)
