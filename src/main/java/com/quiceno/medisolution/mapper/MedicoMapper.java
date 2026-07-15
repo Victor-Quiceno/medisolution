@@ -2,7 +2,6 @@ package com.quiceno.medisolution.mapper;
 
 import com.quiceno.medisolution.dto.EspecialidadDTO;
 import com.quiceno.medisolution.dto.MedicoDTO;
-import com.quiceno.medisolution.entity.EspecialidadEntity;
 import com.quiceno.medisolution.entity.MedicoEntity;
 
 import java.util.Set;
@@ -12,6 +11,10 @@ public class MedicoMapper {
 
     public static MedicoDTO toDTO(MedicoEntity entity) {
 
+        if (entity == null) {
+            return null;
+        }
+
         MedicoDTO dto = new MedicoDTO();
         dto.setId(entity.getId());
         dto.setNombre(entity.getNombre());
@@ -20,7 +23,7 @@ public class MedicoMapper {
         dto.setNumeroDocumento(entity.getNumeroDocumento());
         dto.setTarjetaProfesional(entity.getTarjetaProfesional());
 
-        if (entity.getEspecialidades() != null){
+        if (entity.getEspecialidades() != null) {
             Set<EspecialidadDTO> especialidadesDTO = entity.getEspecialidades().stream()
                     .map(EspecialidadMapper::toDTO)
                     .collect(Collectors.toSet());
@@ -36,11 +39,11 @@ public class MedicoMapper {
 
         return dto;
 
-
     }
 
     public static MedicoEntity toEntity(MedicoDTO dto) {
-        if (dto == null) return null;
+        if (dto == null)
+            return null;
 
         MedicoEntity entity = new MedicoEntity();
         entity.setId(dto.getId());
@@ -56,7 +59,8 @@ public class MedicoMapper {
         entity.setArea(dto.getArea());
         entity.setEstado(dto.getEstado());
 
-        // NOTA: No mapeamos las especialidades aquí, se hace en el service mapeando con el repo
+        // NOTA: No mapeamos las especialidades aquí, se hace en el service mapeando con
+        // el repo
 
         return entity;
     }

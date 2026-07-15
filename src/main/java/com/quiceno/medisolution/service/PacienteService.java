@@ -1,7 +1,6 @@
 package com.quiceno.medisolution.service;
 
 import com.quiceno.medisolution.dto.PacienteDTO;
-import com.quiceno.medisolution.entity.CitaEntity;
 import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
 import com.quiceno.medisolution.enums.Estado;
@@ -18,6 +17,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
+/**
+ * Lógica de negocio principal para la gestión de Pacientes.
+ * Se encarga de las validaciones de duplicados, reglas de negocio y mapeos.
+ */
 @Service
 public class PacienteService {
 
@@ -31,11 +34,16 @@ public class PacienteService {
     }
 
 
-    public Page<PacienteDTO> listar (Estado estado, String numeroDocumento, String email, Pageable pageable){
+    /**
+     * Obtiene una lista paginada de pacientes filtrada dinámicamente.
+     */
+    public Page<PacienteDTO> listar (Estado estado, String numeroDocumento, String email, String nombre, String apellido, Pageable pageable){
         Specification<PacienteEntity> spec = Specification
                 .where(PacienteSpecifications.conEstado(estado))
                 .and(PacienteSpecifications.conNumeroDocumento(numeroDocumento))
-                .and(PacienteSpecifications.conEmail(email));
+                .and(PacienteSpecifications.conEmail(email))
+                .and(PacienteSpecifications.conNombre(nombre))
+                .and(PacienteSpecifications.conApellido(apellido));
 
         return pacienteRepository.findAll(spec, pageable).map(PacienteMapper::toDTO);
     }

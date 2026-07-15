@@ -88,9 +88,9 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 exception.getMessage(),
                 webRequest.getDescription(false),
-                HttpStatus.CONFLICT.value()
+                HttpStatus.BAD_REQUEST.value()
         );
 
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

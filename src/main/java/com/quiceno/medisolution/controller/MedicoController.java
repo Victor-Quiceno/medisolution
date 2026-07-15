@@ -1,6 +1,8 @@
 package com.quiceno.medisolution.controller;
 
 import com.quiceno.medisolution.dto.MedicoDTO;
+import com.quiceno.medisolution.enums.Areas;
+import com.quiceno.medisolution.enums.Estado;
 import com.quiceno.medisolution.service.MedicoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * API REST para el módulo de Médicos.
+ */
 @RestController
 @RequestMapping("/api/medicos")
 public class MedicoController {
@@ -21,13 +26,16 @@ public class MedicoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<MedicoDTO>> listarActivos(@PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
-        return ResponseEntity.ok(medicoService.listarActivo(pageable));
-    }
-
-    @GetMapping("/todo")
-    public ResponseEntity<Page<MedicoDTO>> listarTodo(@PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
-        return ResponseEntity.ok(medicoService.listarTodo(pageable));
+    public ResponseEntity<Page<MedicoDTO>> listar(
+            @RequestParam(required = false) Estado estado,
+            @RequestParam(required = false) String numeroDocumento,
+            @RequestParam(required = false) String tarjetaProfesional,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
+            @RequestParam(required = false) Areas area,
+            @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
+        return ResponseEntity.ok(medicoService.listarDinamico(estado, numeroDocumento, tarjetaProfesional, email, nombre, apellido, area, pageable));
     }
 
     @GetMapping("/{id}")

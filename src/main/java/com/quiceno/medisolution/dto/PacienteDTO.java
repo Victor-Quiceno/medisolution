@@ -1,6 +1,5 @@
 package com.quiceno.medisolution.dto;
 
-import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.enums.Estado;
 import com.quiceno.medisolution.enums.Genero;
 import com.quiceno.medisolution.enums.Regimen;

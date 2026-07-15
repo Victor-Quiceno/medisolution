@@ -4,14 +4,12 @@ import com.quiceno.medisolution.entity.CitaEntity;
 import com.quiceno.medisolution.enums.EstadoCita;
 import org.springframework.data.jpa.domain.Specification;
 
-/*
+import java.time.LocalDateTime;
 
-El specifications nos sirve para seguir el Specifications Pattern, nos ayuda a poder hacer combinaciones dinámicas de las
-consultas SQL que hace el programa debido a una request del cliente. Solo tenemos que crear los bloques de los atributos
-principales, ya el patrón de diseño se encarga del resto.
-
+/**
+ * Filtros dinámicos para la entidad Cita (Patrón Specifications).
+ * Permite buscar citas por estado, paciente, médico y rangos de fecha.
  */
-
 public class CitaSpecifications {
 
     // Bloque 1: Filtrar por Estado
@@ -23,7 +21,6 @@ public class CitaSpecifications {
     public static Specification<CitaEntity> conDocumentoPaciente(String documentoPaciente) {
         return (root, query, cb) -> {
             if (documentoPaciente == null || documentoPaciente.isEmpty()) return null;
-            // Viaja a la entidad "paciente" y busca "numeroDocumento"
             return cb.equal(root.join("paciente").get("numeroDocumento"), documentoPaciente);
         };
     }
@@ -34,5 +31,15 @@ public class CitaSpecifications {
             if (tarjetaMedico == null || tarjetaMedico.isEmpty()) return null;
             return cb.equal(root.join("medico").get("tarjetaProfesional"), tarjetaMedico);
         };
+    }
+
+    // Bloque 4: Rango de Fechas (Desde)
+    public static Specification<CitaEntity> desdeFecha(LocalDateTime desde) {
+        return (root, query, cb) -> desde == null ? null : cb.greaterThanOrEqualTo(root.get("fecha"), desde);
+    }
+
+    // Bloque 5: Rango de Fechas (Hasta)
+    public static Specification<CitaEntity> hastaFecha(LocalDateTime hasta) {
+        return (root, query, cb) -> hasta == null ? null : cb.lessThanOrEqualTo(root.get("fecha"), hasta);
     }
 }

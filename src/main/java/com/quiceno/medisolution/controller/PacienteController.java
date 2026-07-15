@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+/**
+ * API REST para el módulo de Pacientes.
+ */
 @RestController
 @RequestMapping("/api/pacientes")
 public class PacienteController {
@@ -32,9 +35,11 @@ public class PacienteController {
             @RequestParam(required = false) Estado estado,
             @RequestParam(required = false) String numeroDocumento,
             @RequestParam(required = false) String email,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
             @PageableDefault(size = 10, sort = "apellido") Pageable pageable
             ){
-        Page<PacienteDTO> pacientes = pacienteService.listar(estado, numeroDocumento, email, pageable);
+        Page<PacienteDTO> pacientes = pacienteService.listar(estado, numeroDocumento, email, nombre, apellido, pageable);
 
         return ResponseEntity.ok(pacientes);
     }
@@ -56,9 +61,9 @@ public class PacienteController {
     }
 
     @DeleteMapping("/{id}")
-    public boolean eliminarPaciente (@Valid @PathVariable Long id){
+    public ResponseEntity<Void> eliminarPaciente (@Valid @PathVariable Long id){
         pacienteService.eliminar(id);
-        return true;
+        return ResponseEntity.noContent().build();
     }
 
 }

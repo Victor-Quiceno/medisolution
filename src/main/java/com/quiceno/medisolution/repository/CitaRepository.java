@@ -1,10 +1,6 @@
 package com.quiceno.medisolution.repository;
 
 import com.quiceno.medisolution.entity.CitaEntity;
-import com.quiceno.medisolution.entity.EspecialidadEntity;
-import com.quiceno.medisolution.enums.EstadoCita;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

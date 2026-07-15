@@ -11,44 +11,45 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+/**
+ * Servicio para la gestión de las Entidades Promotoras de Salud (EPS).
+ */
 @Service
 public class EpsService {
 
     private final EpsRepository epsRepository;
-    public EpsService  (EpsRepository epsRepository){
+
+    public EpsService(EpsRepository epsRepository) {
         this.epsRepository = epsRepository;
     }
 
-    public Page<EpsDTO> listarTodas (Pageable pageable){
+    public Page<EpsDTO> listarTodas(Pageable pageable) {
         Page<EpsEntity> listaEps = epsRepository.findAll(pageable);
 
         return listaEps.map(EpsMapper::toDto);
     }
 
-    public Page<EpsDTO> listarActivas (Pageable pageable){
+    public Page<EpsDTO> listarActivas(Pageable pageable) {
         Page<EpsEntity> listaEps = epsRepository.findByEstado(EstadoEps.ACTIVO, pageable);
         return listaEps.map(EpsMapper::toDto);
     }
 
-    public EpsDTO buscarPorNit (String nit){
+    public EpsDTO buscarPorNit(String nit) {
         EpsEntity eps = epsRepository.findByNit(nit).orElseThrow(
-                () -> new ResourceNotFoundException("Error: La eps que busca no ha sido encontrada.")
-        );
+                () -> new ResourceNotFoundException("Error: La eps que busca no ha sido encontrada."));
 
         return EpsMapper.toDto(eps);
     }
 
-    public EpsDTO guardar (EpsDTO dto){
+    public EpsDTO guardar(EpsDTO dto) {
 
         dto.setId(null);
-        if (epsRepository.existsByNit(dto.getNit())){
+        if (epsRepository.existsByNit(dto.getNit())) {
             throw new DuplicateResourceException("Error: La eps que intenta crear ya existe en el sistema.");
         }
-        if (dto.getEstado() == null){
+        if (dto.getEstado() == null) {
             dto.setEstado(EstadoEps.ACTIVO);
         }
 
@@ -58,16 +59,16 @@ public class EpsService {
         return EpsMapper.toDto(epsGuardada);
     }
 
-    public EpsDTO actualizar (EpsDTO dto){
+    public EpsDTO actualizar(EpsDTO dto) {
 
-        //Validar si la eps existe
+        // Validar si la eps existe
         EpsEntity eps = epsRepository.findById(dto.getId()).orElseThrow(
-                ()-> new ResourceNotFoundException("Error: La eps que intenta actualizar no está en el sistema."));
+                () -> new ResourceNotFoundException("Error: La eps que intenta actualizar no está en el sistema."));
 
         Optional<EpsEntity> epsNit = epsRepository.findByNit(dto.getNit());
-        if (epsNit.isPresent()){
+        if (epsNit.isPresent()) {
             EpsEntity duenaNit = epsNit.get();
-            if (!duenaNit.getNit().equalsIgnoreCase(eps.getNit())){
+            if (!duenaNit.getNit().equalsIgnoreCase(eps.getNit())) {
                 throw new DuplicateResourceException("Error: El NIT que intenta actualizar ya pertenece a '"
                         + duenaNit.getNombre() + "'");
             }
@@ -84,10 +85,9 @@ public class EpsService {
         return EpsMapper.toDto(epsActualizado);
     }
 
-    public boolean eliminar (Long id){
+    public boolean eliminar(Long id) {
         EpsEntity epsEliminar = epsRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("Error: Eps no encontrada.")
-        );
+                () -> new ResourceNotFoundException("Error: Eps no encontrada."));
         epsEliminar.setEstado(EstadoEps.INACTIVO);
         epsRepository.save(epsEliminar);
 

@@ -1,13 +1,14 @@
 package com.quiceno.medisolution.mapper;
 
 import com.quiceno.medisolution.dto.PacienteDTO;
-import com.quiceno.medisolution.entity.EpsEntity;
 import com.quiceno.medisolution.entity.PacienteEntity;
 
 public class PacienteMapper {
 
     public static PacienteDTO toDTO(PacienteEntity paciente) {
-        if (paciente == null){return null;}
+        if (paciente == null) {
+            return null;
+        }
 
         PacienteDTO dto = new PacienteDTO();
 
@@ -22,13 +23,11 @@ public class PacienteMapper {
         dto.setTelefono(paciente.getTelefono());
         dto.setRegimen(paciente.getRegimen());
 
-        if (paciente.getEps() != null){
+        if (paciente.getEps() != null) {
             dto.setEpsId(paciente.getEps().getId());
             dto.setEps(EpsMapper.toDto(paciente.getEps()));
         }
         dto.setEstado(paciente.getEstado());
-
-
 
         return dto;
     }
@@ -49,6 +48,5 @@ public class PacienteMapper {
 
         return paciente;
     }
-
 
 }

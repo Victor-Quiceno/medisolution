@@ -7,6 +7,8 @@ public class CitaMapper {
 
     public static CitaDTO toDTO (CitaEntity entity){
 
+        if (entity == null) { return null; }
+
         CitaDTO dto = new CitaDTO();
 
         dto.setId(entity.getId());

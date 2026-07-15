@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * Servicio para la gestión de Especialidades Médicas.
+ */
 @Service
 public class EspecialidadService {
 
