@@ -36,6 +36,13 @@ El sistema está estructurado bajo una **Arquitectura Multicapa (N-Tier)**, gara
 3. **Gestión de Especialidades y EPS:** 
    - Catálogos de normalización asociados mediante relaciones en base de datos.
 
+## Documentación de la API (OpenAPI 3.0)
+
+El proyecto cuenta con documentación viva y autogenerada mediante **Springdoc OpenAPI**. No se ensucia el código con anotaciones manuales; el framework infiere el contrato a partir del enrutamiento y las firmas de los controladores de Spring WebMVC.
+
+Una vez que el servidor esté en ejecución, puedes interactuar gráficamente con los endpoints (Swagger UI) ingresando a:
+- **`http://localhost:8080/swagger-ui.html`**
+
 ## Ejecución Local
 
 ### Prerrequisitos
