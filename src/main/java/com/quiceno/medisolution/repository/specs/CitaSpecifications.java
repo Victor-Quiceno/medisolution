@@ -20,7 +20,8 @@ public class CitaSpecifications {
     // Bloque 2: Filtrar por Documento del Paciente (Hace el JOIN automáticamente)
     public static Specification<CitaEntity> conDocumentoPaciente(String documentoPaciente) {
         return (root, query, cb) -> {
-            if (documentoPaciente == null || documentoPaciente.isEmpty()) return null;
+            if (documentoPaciente == null || documentoPaciente.isEmpty())
+                return null;
             return cb.equal(root.join("paciente").get("numeroDocumento"), documentoPaciente);
         };
     }
@@ -28,7 +29,8 @@ public class CitaSpecifications {
     // Bloque 3: Filtrar por Tarjeta del Médico
     public static Specification<CitaEntity> conTarjetaMedico(String tarjetaMedico) {
         return (root, query, cb) -> {
-            if (tarjetaMedico == null || tarjetaMedico.isEmpty()) return null;
+            if (tarjetaMedico == null || tarjetaMedico.isEmpty())
+                return null;
             return cb.equal(root.join("medico").get("tarjetaProfesional"), tarjetaMedico);
         };
     }
@@ -41,5 +43,14 @@ public class CitaSpecifications {
     // Bloque 5: Rango de Fechas (Hasta)
     public static Specification<CitaEntity> hastaFecha(LocalDateTime hasta) {
         return (root, query, cb) -> hasta == null ? null : cb.lessThanOrEqualTo(root.get("fecha"), hasta);
+    }
+
+    // Bloque 6: Buscar por palabra clave en el campo de motivo de consulta
+    public static Specification<CitaEntity> conMotivo(String palabraMotivo) {
+        return (root, query, cb) -> {
+            if (palabraMotivo == null || palabraMotivo.isEmpty())
+                return null;
+            return cb.like(root.get("motivo"), "%" + palabraMotivo + "%");
+        };
     }
 }

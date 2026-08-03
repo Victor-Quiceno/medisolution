@@ -7,8 +7,11 @@ import com.quiceno.medisolution.exception.DuplicateResourceException;
 import com.quiceno.medisolution.exception.ResourceNotFoundException;
 import com.quiceno.medisolution.mapper.EspecialidadMapper;
 import com.quiceno.medisolution.repository.EspecialidadRepository;
+import com.quiceno.medisolution.repository.specs.EspecialidadSpecifications;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -25,14 +28,13 @@ public class EspecialidadService {
         this.especialidadRepository = especialidadRepository;
     }
 
-    public Page<EspecialidadDTO> listarActivas(Pageable pageable) {
-        Page<EspecialidadEntity> lista = especialidadRepository.findByEstado(Estado.ACTIVO, pageable);
-        return lista.map(EspecialidadMapper::toDTO);
-    }
+    public Page<EspecialidadDTO> listarDinamico(String nombre, Estado estado, Pageable pageable) {
+        Specification<EspecialidadEntity> spec = Specification
+                .where(EspecialidadSpecifications.conNombre(nombre))
+                .and(EspecialidadSpecifications.conEstado(estado));
 
-    public Page<EspecialidadDTO> listarTodo(Pageable pageable) {
-        Page<EspecialidadEntity> lista = especialidadRepository.findAll(pageable);
-        return lista.map(EspecialidadMapper::toDTO);
+        return especialidadRepository.findAll(spec, pageable).map(EspecialidadMapper::toDTO);
+
     }
 
     public EspecialidadDTO buscarId(Long id) {
@@ -44,13 +46,6 @@ public class EspecialidadService {
         } else {
             throw new ResourceNotFoundException("No se encontró la especialidad con el id " + id);
         }
-    }
-
-    public EspecialidadDTO buscarPorNombre(String nombre) {
-        EspecialidadEntity encontrado = especialidadRepository.findByNombre(nombre).orElseThrow(
-                () -> new ResourceNotFoundException("No se ha encontrado la especialidad ingresada"));
-
-        return EspecialidadMapper.toDTO(encontrado);
     }
 
     public EspecialidadDTO guardar(EspecialidadDTO dto) {
@@ -73,21 +68,19 @@ public class EspecialidadService {
 
     public EspecialidadDTO actualizar(EspecialidadDTO dto) {
 
-        //Validar si la especialidad a actualizar existe o no
+        // Validar si la especialidad a actualizar existe o no
         EspecialidadEntity encontrada = especialidadRepository.findById(dto.getId()).orElseThrow(
                 () -> new ResourceNotFoundException("La especialidad que intenta actualizar no existe."));
 
-        //Validar si el nombre actualizado ya le pertenece a otra especialidad
+        // Validar si el nombre actualizado ya le pertenece a otra especialidad
         Optional<EspecialidadEntity> especialidadExistente = especialidadRepository.findByNombre(dto.getNombre());
         if (especialidadExistente.isPresent() && !especialidadExistente.get().getId().equals(dto.getId())) {
             throw new DuplicateResourceException("Error: El nombre de la especialidad ya está en uso.");
         }
 
-
         encontrada.setNombre(dto.getNombre());
         encontrada.setDescripcion(dto.getDescripcion());
         encontrada.setEstado(dto.getEstado());
-
 
         EspecialidadEntity guardada = especialidadRepository.save(encontrada);
         return EspecialidadMapper.toDTO(guardada);
@@ -99,10 +92,9 @@ public class EspecialidadService {
 
         encontrada.setEstado(Estado.INACTIVO);
 
-        EspecialidadEntity guardada = especialidadRepository.save(encontrada);
+        especialidadRepository.save(encontrada);
 
         return true;
     }
-
 
 }

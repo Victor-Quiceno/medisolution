@@ -46,7 +46,7 @@ public class CitaService {
      * rangos de fechas.
      */
     public Page<CitaDTO> listarCitasDinamico(EstadoCita estado, String documentoPaciente, String tarjetaMedico,
-            LocalDateTime desde, LocalDateTime hasta, Pageable pageable) {
+            LocalDateTime desde, LocalDateTime hasta, String palabraMotivo, Pageable pageable) {
 
         // Combinamos los filtros. Si un filtro devuelve null, Spring lo ignora en el
         // SQL final.
@@ -55,7 +55,8 @@ public class CitaService {
                 .and(CitaSpecifications.conDocumentoPaciente(documentoPaciente))
                 .and(CitaSpecifications.conTarjetaMedico(tarjetaMedico))
                 .and(CitaSpecifications.desdeFecha(desde))
-                .and(CitaSpecifications.hastaFecha(hasta));
+                .and(CitaSpecifications.hastaFecha(hasta))
+                .and(CitaSpecifications.conMotivo(palabraMotivo));
 
         // Ejecutamos la consulta dinámica
         return citaRepository.findAll(spec, pageable).map(CitaMapper::toDTO);

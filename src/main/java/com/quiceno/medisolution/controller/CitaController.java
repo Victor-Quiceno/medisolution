@@ -23,42 +23,44 @@ public class CitaController {
 
     private final CitaService citaService;
 
-    public CitaController(CitaService citaService){
+    public CitaController(CitaService citaService) {
         this.citaService = citaService;
     }
 
     @GetMapping
-    public ResponseEntity<Page<CitaDTO>> listar (
+    public ResponseEntity<Page<CitaDTO>> listar(
             @RequestParam(required = false) EstadoCita estado,
             @RequestParam(required = false) String documentoPaciente,
             @RequestParam(required = false) String tarjetaMedico,
+            @RequestParam(required = false) String palabraMotivo,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta,
-            @PageableDefault(size = 10, sort = "fecha") Pageable pageable){
+            @PageableDefault(size = 10, sort = "fecha") Pageable pageable) {
 
-        Page<CitaDTO> citas = citaService.listarCitasDinamico(estado, documentoPaciente, tarjetaMedico, desde, hasta, pageable);
+        Page<CitaDTO> citas = citaService.listarCitasDinamico(estado, documentoPaciente, tarjetaMedico, desde, hasta,
+                palabraMotivo, pageable);
 
         return ResponseEntity.ok(citas);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CitaDTO> listarPorId (@PathVariable Long id){
+    public ResponseEntity<CitaDTO> listarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(citaService.listarPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<CitaDTO> guardar (@Valid @RequestBody CitaDTO dto){
+    public ResponseEntity<CitaDTO> guardar(@Valid @RequestBody CitaDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(citaService.guardar(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CitaDTO> actualizar (@Valid @RequestBody CitaDTO dto, @PathVariable Long id){
+    public ResponseEntity<CitaDTO> actualizar(@Valid @RequestBody CitaDTO dto, @PathVariable Long id) {
         dto.setId(id);
         return ResponseEntity.ok(citaService.actualizar(dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar (@PathVariable Long id){
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         citaService.eliminar(id);
         return ResponseEntity.noContent().build();
     }

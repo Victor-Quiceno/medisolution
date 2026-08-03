@@ -5,12 +5,14 @@ import com.quiceno.medisolution.enums.Estado;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface EspecialidadRepository extends JpaRepository<EspecialidadEntity, Long> {
+public interface EspecialidadRepository extends JpaRepository<EspecialidadEntity, Long>,
+        JpaSpecificationExecutor<EspecialidadEntity> {
 
     Page<EspecialidadEntity> findByEstado(Estado estado, Pageable pageable);
 

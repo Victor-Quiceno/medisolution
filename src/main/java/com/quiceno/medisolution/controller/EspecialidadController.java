@@ -1,6 +1,7 @@
 package com.quiceno.medisolution.controller;
 
 import com.quiceno.medisolution.dto.EspecialidadDTO;
+import com.quiceno.medisolution.enums.Estado;
 import com.quiceno.medisolution.service.EspecialidadService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -24,16 +25,11 @@ public class EspecialidadController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EspecialidadDTO>> listarActivas(
-            @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
-
-        return ResponseEntity.ok(especialidadService.listarActivas(pageable));
-    }
-
-    @GetMapping("/todo")
-    public ResponseEntity<Page<EspecialidadDTO>> listarTodo(
-            @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
-        return ResponseEntity.ok(especialidadService.listarTodo(pageable));
+    public ResponseEntity<Page<EspecialidadDTO>> listar(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Estado estado,
+            @PageableDefault() Pageable pageable) {
+        return ResponseEntity.ok(especialidadService.listarDinamico(nombre, estado, pageable));
     }
 
     @PostMapping
